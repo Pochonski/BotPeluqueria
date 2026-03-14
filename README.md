@@ -1,80 +1,85 @@
-# 💈 BarberPro - Sistema de Gestión & WhatsApp Bot
+# 💈 BarberPro: Sistema de Gestión Inteligente & WhatsApp Bot
 
-¡Bienvenido a **BarberPro**! El aliado perfecto para tu barbería. Este sistema combina un panel administrativo moderno con un **Bot de WhatsApp inteligente** para que tus clientes agenden citas solos, ¡mientras tú te enfocas en el corte!
+BarberPro es una solución integral diseñada para modernizar barberías y peluquerías. Combina la potencia de un **Bot de WhatsApp con Lenguaje Natural** y un **Dashboard Administrativo de alto rendimiento**, permitiendo automatizar el 90% de las tareas de agendado.
 
-## ✨ Características Principales
+---
 
-### 🤖 WhatsApp Bot Inteligente
-- **Lenguaje Natural**: Entiende frases como "mañana", "lunes", o "el 16 de marzo".
-- **Identificación Automática**: Saluda a los clientes conocidos por su nombre y registra a los nuevos.
-- **Flujo Guiado**: Selección de servicios, fechas y horarios disponibles en tiempo real.
-- **Confirmación Instantánea**: Resume la cita y el precio antes de guardar.
+## 🌟 Características Destacadas
 
-### ⚙️ Panel Administrativo (PWA Style)
-- **Agenda Interactiva**: Visualiza citas y bloqueos por fecha con un selector dinámico.
-- **Gestión de Servicios**: Cambia precios, nombres y duraciones al instante.
-- **Control de Horarios**: Define tus horas de apertura, cierre y tiempos de almuerzo.
-- **Bloqueos Puntuales**: ¿Un imprevisto? Bloquea rangos de tiempo específicos para que nadie agende ahí.
-- **Diseño Móvil Primero**: Optimizado para usarse como una App desde tu teléfono.
+### 🤖 WhatsApp Bot (IA de Agendado)
+- **Comprensión Semántica**: Entiende frases naturales como *"¿Qué tenés para mañana?"*, *"Agendame un corte para el lunes"*, o *"Ocupo cita hoy"*.
+- **Memoria de Clientes**: Reconoce a los clientes recurrentes por su nombre, brindando un trato personalizado.
+- **Validación en Tiempo Real**: Verifica automáticamente la disponibilidad basándose en servicios, horarios de almuerzo y bloqueos de agenda.
+- **Cierre de Cita**: Genera resúmenes automáticos con el total a pagar y confirma la reserva directamente en la base de datos.
+- **Filtrado Inteligente**: Ignora mensajes de grupos y estados de WhatsApp para evitar respuestas accidentales.
 
-## 🛠️ Tecnologías Usadas
-- **Backend**: Node.js & Express
-- **Base de Datos**: MySQL
-- **Integración WA**: [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js)
-- **Frontend**: Vanilla JS, HTML5, CSS3 (Modern Glassmorphism Design)
+### 🛡️ Panel Administrativo (PWA Style)
+- **Agenda Dinámica**: Vista completa de la jornada con diferenciación visual entre citas y bloqueos temporales.
+- **Estructura "Mobile-First"**: Diseñado para funcionar como una App nativa en el celular del barbero, con navegación inferior fija.
+- **Gestor de Servicios**: Control total sobre catálogo de servicios, precios y tiempos de ejecución.
+- **Configuración de Horarios**: Define apertura, cierre y horarios de descanso por cada día de la semana.
+- **Monitor de WhatsApp**: Sección dedicada para vincular la sesión mediante QR y monitorear el estado del bot (Ready, QR, etc.) sin usar la terminal.
 
-## 🚀 Instalación y Configuración
+---
 
-1. **Clonar el repositorio**:
+## 🚀 Acceso Rápido
+
+### 🌍 Enlaces de Producción
+- **📅 Agenda para Clientes**: [https://botpeluqueria-joseph.up.railway.app/](https://botpeluqueria-joseph.up.railway.app/)
+- **⚙️ Panel de Control**: [https://botpeluqueria-joseph.up.railway.app/admin.html](https://botpeluqueria-joseph.up.railway.app/admin.html)
+
+---
+
+## 🧪 Stack Tecnológico
+- **Cloud Hosting**: [Railway.app](https://railway.app/)
+- **Backend**: Node.js & Express.
+- **Base de Datos**: PostgreSQL (Optimizado para Railway).
+- **WhatsApp Engine**: [whatsapp-web.js](https://github.com/pedroslopez/whatsapp-web.js) con Puppeteer Headless.
+- **Frontend**: Vanilla JavaScript (ES6+), HTML5 Semántico y CSS3 Moderno (Glassmorphism & CSS Variables).
+
+---
+
+## 🛠️ Instalación y Configuración Local
+
+1. **Clonar el Repo**:
    ```bash
-   git clone [TU_URL_DE_GITHUB]
+   git clone https://github.com/TuUsuario/BotPeluqueria.git
    cd BotPeluqueria
    ```
 
-2. **Instalar dependencias**:
+2. **Variables de Entorno (.env)**:
+   ```env
+   PORT=3000
+   DATABASE_URL=postgresql://user:pass@host:port/dbname
+   TZ=America/Costa_Rica
+   ```
+
+3. **Instalación de Dependencias**:
    ```bash
    npm install
    ```
 
-3. **Configurar variables de entorno**:
-   Crea un archivo `.env` en la raíz con lo siguiente:
-   ```env
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASS=tu_contraseña
-   DB_NAME=bot
-   PORT=3000
+4. **Inicialización de Base de Datos**:
+   Ejecuta el script de configuración automática para crear las tablas en PostgreSQL:
+   ```bash
+   node setup_db.js
    ```
 
-4. **Base de Datos**:
-   Importa el esquema de base de datos (puedes encontrarlo en `database.sql` si lo generaste o ejecutar los modelos).
-
-5. **Iniciar el sistema**:
+5. **Lanzar la App**:
    ```bash
    npm start
    ```
 
-6. **Vincular WhatsApp**:
-   Escanea el código QR que aparecerá en la terminal con tu teléfono.
-
 ---
 
-## 📱 Acceso en Línea (Producción)
-- **📅 Agenda de Citas**: [botpeluqueria-joseph.up.railway.app](https://botpeluqueria-joseph.up.railway.app/)
-- **🛡️ Panel Administrativo**: [botpeluqueria-joseph.up.railway.app/admin.html](https://botpeluqueria-joseph.up.railway.app/admin.html)
-
-## 🤖 Cómo Conectar el Bot de WhatsApp
-Para que el bot empiece a responder a tus clientes en el número de la barbería, sigue estos pasos:
-1. Entra al **Panel Administrativo** desde tu celular o PC.
-2. Ve a la sección **"📱 Bot"** en el menú lateral (o inferior en móviles).
-3. Espera a que aparezca el **Código QR**.
-4. Abre WhatsApp en tu celular -> **Dispositivos vinculados** -> **Vincular un dispositivo**.
-5. Escanea el código QR de la pantalla.
-6. ¡Listo! El estado cambiará a **READY** y el bot empezará a bretear.
+## 📱 Guía de Vinculación de WhatsApp
+1. Accede al **Panel Administrativo** -> **Sección Bot**.
+2. Cuando el estado indique `QR`, escanea el código con la opción "Vincular dispositivo" de WhatsApp.
+3. El servidor guardará la sesión localmente (`.wwebjs_auth`) para evitar re-escaneos frecuentes.
 
 ---
 ## 📄 Licencia
-Este proyecto es de uso privado para Barbería Premium.
+Este proyecto es propiedad intelectual privada para uso exclusivo de **Barbería Joseph**. Prohibida su reproducción o distribución sin autorización.
 
 ---
-*Desarrollado con ❤️ para BarberPro Costa Rica.*
+*Desarrollado con pasión para elevar el estándar de las peluquerías en Costa Rica. ¡Pura vida!* 💈🇨🇷
