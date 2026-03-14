@@ -3,14 +3,16 @@ const db = require('../config/db');
 class AdminModel {
     static async getCitasHoy(fecha) {
         const { rows } = await db.query(`
-            SELECT c.*, u.nombre as cliente_nombre, u.telefono as cliente_telefono,
-            STRING_AGG(s.nombre, \', \') as servicios
+            SELECT 
+                c.id, c.fecha, c.hora_inicio, c.hora_fin, c.total, c.estado,
+                u.nombre as cliente_nombre, u.telefono as cliente_telefono,
+                STRING_AGG(s.nombre, ', ') as servicios
             FROM citas c
             JOIN usuarios u ON c.cliente_id = u.id
             JOIN cita_servicios cs ON c.id = cs.cita_id
             JOIN servicios s ON cs.servicio_id = s.id
             WHERE c.fecha = $1
-            GROUP BY c.id, u.nombre, u.telefono
+            GROUP BY c.id, c.fecha, c.hora_inicio, c.hora_fin, c.total, c.estado, u.nombre, u.telefono
             ORDER BY c.hora_inicio ASC
         `, [fecha]);
         return rows;
