@@ -59,12 +59,20 @@
 
 ---
 
-## 📱 Acceso Local
-- **Web/Cliente**: `http://localhost:3000`
-- **Admin**: `http://localhost:3000/admin.html`
+## 📱 Acceso en Línea (Producción)
+- **📅 Agenda de Citas**: [botpeluqueria-joseph.up.railway.app](https://botpeluqueria-joseph.up.railway.app/)
+- **🛡️ Panel Administrativo**: [botpeluqueria-joseph.up.railway.app/admin.html](https://botpeluqueria-joseph.up.railway.app/admin.html)
 
-*Para acceder del teléfono, usa tu IP local (ej: `http://192.168.11.104:3000`).*
+## 🤖 Cómo Conectar el Bot de WhatsApp
+Para que el bot empiece a responder a tus clientes en el número de la barbería, sigue estos pasos:
+1. Entra al **Panel Administrativo** desde tu celular o PC.
+2. Ve a la sección **"📱 Bot"** en el menú lateral (o inferior en móviles).
+3. Espera a que aparezca el **Código QR**.
+4. Abre WhatsApp en tu celular -> **Dispositivos vinculados** -> **Vincular un dispositivo**.
+5. Escanea el código QR de la pantalla.
+6. ¡Listo! El estado cambiará a **READY** y el bot empezará a bretear.
 
+---
 ## 📄 Licencia
 Este proyecto es de uso privado para Barbería Premium.
 
