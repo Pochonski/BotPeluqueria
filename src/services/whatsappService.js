@@ -12,9 +12,12 @@ const chatStates = new Map();
 
 const client = new Client({
     authStrategy: new LocalAuth(),
+    authTimeoutMs: 60000,
+    takeoverOnConflict: true,
+    takeoverTimeoutMs: 10000,
     webVersionCache: {
         type: 'remote',
-        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1018903333-alpha.html',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
     },
     puppeteer: {
         headless: true,
@@ -26,22 +29,35 @@ const client = new Client({
             '--no-first-run',
             '--no-zygote',
             '--disable-gpu',
-            '--disable-extensions'
-        ]
+            '--disable-extensions',
+            '--use-gl=desktop'
+        ],
+        // User Agent para evitar bloqueos por parecer headless
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
     }
+});
+
+client.on('loading_screen', (percent, message) => {
+    console.log(`⏳ Cargando WhatsApp: ${percent}% - ${message}`);
 });
 
 client.on('qr', (qr) => {
     lastQR = qr;
     botStatus = 'qr';
     qrcode.generate(qr, { small: true });
-    console.log('📱 Escanea el código QR de WhatsApp para el bot');
+    console.log('📱 Escanea el código QR de WhatsApp para el bot (Visto en logs de Railway)');
 });
 
-client.on('ready', () => {
+client.on('ready', async () => {
     lastQR = null;
     botStatus = 'ready';
-    console.log('✅ El Bot de WhatsApp está listo para bretear');
+    try {
+        const version = await client.getWWebVersion();
+        console.log(`✅ El Bot de WhatsApp está listo (WWeb v${version})`);
+    } catch (e) {
+        console.log('✅ El Bot de WhatsApp está listo para bretear');
+    }
 });
 
 client.on('authenticated', () => {
@@ -49,9 +65,18 @@ client.on('authenticated', () => {
     console.log('📖 Bot autenticado correctamente');
 });
 
-client.on('disconnected', () => {
+client.on('auth_failure', msg => {
+    console.error('❌ ERROR de Autenticación:', msg);
+    botStatus = 'auth_failure';
+});
+
+client.on('change_state', state => {
+    console.log('🔄 Estado del Cliente cambió a:', state);
+});
+
+client.on('disconnected', (reason) => {
     botStatus = 'disconnected';
-    console.log('❌ Bot desconectado');
+    console.log('❌ Bot desconectado:', reason);
 });
 
 // Función para obtener estado desde afuera
