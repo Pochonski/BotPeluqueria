@@ -2,16 +2,16 @@ const db = require('../config/db');
 
 class UsuarioModel {
     static async findByTelefono(telefono) {
-        const [rows] = await db.query('SELECT * FROM usuarios WHERE telefono = ?', [telefono]);
+        const { rows } = await db.query('SELECT * FROM usuarios WHERE telefono = $1', [telefono]);
         return rows[0];
     }
 
     static async create(nombre, telefono, rol = 'cliente') {
-        const [result] = await db.query(
-            'INSERT INTO usuarios (nombre, telefono, rol) VALUES (?, ?, ?)',
+        const { rows } = await db.query(
+            'INSERT INTO usuarios (nombre, telefono, rol) VALUES ($1, $2, $3) RETURNING id',
             [nombre, telefono, rol]
         );
-        return result.insertId;
+        return rows[0].id;
     }
 }
 

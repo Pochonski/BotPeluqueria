@@ -8,8 +8,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Inicializar Bot de WhatsApp
-const whatsappClient = require('./src/services/whatsappService');
+const { client: whatsappClient, getStatus } = require('./src/services/whatsappService');
 whatsappClient.initialize();
+
+// Endpoint para estado de WhatsApp
+app.get('/api/admin/whatsapp-status', (req, res) => {
+    res.json(getStatus());
+});
 
 // Middlewares
 app.use(cors());

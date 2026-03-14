@@ -5,24 +5,52 @@ const UsuarioModel = require('../models/usuarioModel');
 const CitaModel = require('../models/citaModel');
 const { calcularDisponibilidad } = require('../utils/appointmentUtils');
 
-// Almacén de estados de conversación (en memoria)
+// Variables de estado del Bot
+let lastQR = null;
+let botStatus = 'starting'; // starting, qr, ready, authenticated
 const chatStates = new Map();
 
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        args: ['--no-sandbox']
+        headless: true,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu'
+        ]
     }
 });
 
 client.on('qr', (qr) => {
+    lastQR = qr;
+    botStatus = 'qr';
     qrcode.generate(qr, { small: true });
     console.log('📱 Escanea el código QR de WhatsApp para el bot');
 });
 
 client.on('ready', () => {
+    lastQR = null;
+    botStatus = 'ready';
     console.log('✅ El Bot de WhatsApp está listo para bretear');
 });
+
+client.on('authenticated', () => {
+    botStatus = 'authenticated';
+    console.log('📖 Bot autenticado correctamente');
+});
+
+client.on('disconnected', () => {
+    botStatus = 'disconnected';
+    console.log('❌ Bot desconectado');
+});
+
+// Función para obtener estado desde afuera
+const getStatus = () => ({ status: botStatus, qr: lastQR });
 
 client.on('message', async (msg) => {
     const from = msg.from;
@@ -220,4 +248,4 @@ function parseIntelligentDate(text) {
     return null;
 }
 
-module.exports = client;
+module.exports = { client, getStatus };

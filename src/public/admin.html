@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body class="dark-mode">
     <div class="admin-container">
@@ -16,6 +17,7 @@
                 <a href="#" onclick="showSection('agenda')" id="nav-agenda" class="active">📅 Agenda Hoy</a>
                 <a href="#" onclick="showSection('servicios')" id="nav-servicios">✂️ Servicios</a>
                 <a href="#" onclick="showSection('bloqueos')" id="nav-bloqueos">🚫 Bloqueos</a>
+                <a href="#" onclick="showSection('whatsapp')" id="nav-whatsapp">📱 WhatsApp</a>
                 <a href="#" onclick="showSection('config')" id="nav-config">⚙️ Configuración</a>
             </nav>
         </aside>
@@ -58,6 +60,27 @@
                 </div>
             </section>
 
+            <!-- SECCIÓN: WHATSAPP -->
+            <section id="section-whatsapp" class="admin-section">
+                <header class="content-header">
+                    <h2>Estado del Bot</h2>
+                </header>
+                <div class="card animate-fade-in" style="text-align: center; padding: 40px;">
+                    <div id="wa-status-badge" class="date-badge" style="margin-bottom: 20px; display: inline-block;">Verificando...</div>
+                    
+                    <div id="qrcode-container" style="background: white; padding: 20px; border-radius: 12px; display: none; margin: 0 auto; width: fit-content;">
+                        <div id="qrcode"></div>
+                        <p style="color: black; margin-top: 15px; font-weight: 600;">Escanea este código con WhatsApp</p>
+                    </div>
+
+                    <div id="wa-ready-msg" style="display: none;">
+                        <span style="font-size: 4rem;">✅</span>
+                        <h3 style="margin-top: 20px;">¡El Bot está conectado!</h3>
+                        <p style="color: var(--text-secondary);">Todo listo para recibir citas.</p>
+                    </div>
+                </div>
+            </section>
+
             <!-- SECCIÓN: CONFIGURACIÓN -->
             <section id="section-config" class="admin-section">
                 <header class="content-header">
@@ -79,6 +102,9 @@
             </a>
             <a href="#" onclick="showSection('bloqueos')" id="m-nav-bloqueos">
                 <span>🚫</span> Bloqueos
+            </a>
+            <a href="#" onclick="showSection('whatsapp')" id="m-nav-whatsapp">
+                <span>📱</span> Bot
             </a>
             <a href="#" onclick="showSection('config')" id="m-nav-config">
                 <span>⚙️</span> Config.

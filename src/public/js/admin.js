@@ -126,6 +126,58 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sectionName === 'servicios') loadServicios();
         if (sectionName === 'bloqueos') loadBloqueos();
         if (sectionName === 'config') loadHorarios();
+        if (sectionName === 'whatsapp') checkWhatsAppStatus();
+    };
+
+    // --- WHATSAPP BOT STATUS ---
+    let waInterval = null;
+    let qrGenerator = null;
+
+    window.checkWhatsAppStatus = async () => {
+        const badge = document.getElementById('wa-status-badge');
+        const qrContainer = document.getElementById('qrcode-container');
+        const readyMsg = document.getElementById('wa-ready-msg');
+        const qrDiv = document.getElementById('qrcode');
+
+        try {
+            const res = await fetch('/api/admin/whatsapp-status');
+            const { status, qr } = await res.json();
+
+            badge.textContent = status.toUpperCase();
+            
+            if (status === 'qr' && qr) {
+                qrContainer.style.display = 'block';
+                readyMsg.style.display = 'none';
+                
+                qrDiv.innerHTML = '';
+                new QRCode(qrDiv, {
+                    text: qr,
+                    width: 256,
+                    height: 256
+                });
+
+                // Seguir verificando cada 5 segs
+                if (!waInterval) waInterval = setInterval(checkWhatsAppStatus, 5000);
+            } 
+            else if (status === 'ready' || status === 'authenticated') {
+                qrContainer.style.display = 'none';
+                readyMsg.style.display = 'block';
+                badge.style.background = 'rgba(0, 230, 118, 0.1)';
+                badge.style.color = '#00e676';
+                
+                if (waInterval) {
+                    clearInterval(waInterval);
+                    waInterval = null;
+                }
+            }
+            else {
+                qrContainer.style.display = 'none';
+                readyMsg.style.display = 'none';
+                if (!waInterval) waInterval = setInterval(checkWhatsAppStatus, 3000);
+            }
+        } catch (error) {
+            console.error('Error WA Status:', error);
+        }
     };
 
     // --- BLOQUEOS ---
