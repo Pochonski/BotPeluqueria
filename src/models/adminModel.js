@@ -87,7 +87,7 @@ class AdminModel {
         const { rows } = await db.query(`
             SELECT c.fecha, COUNT(*) as total_citas, SUM(c.total) as ingresos
             FROM citas c
-            WHERE c.fecha BETWEEN CURRENT_DATE - INTERVAL \'7 days\' AND CURRENT_DATE
+            WHERE c.fecha BETWEEN CURRENT_DATE - INTERVAL '7 days' AND CURRENT_DATE
             GROUP BY c.fecha
         `);
         return rows;

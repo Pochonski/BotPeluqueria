@@ -19,7 +19,18 @@ const config = process.env.DATABASE_URL
 const pool = new Pool(config);
 
 // Wrapper para simular el comportamiento de mysql2.query que usábamos
-const query = (text, params) => pool.query(text, params);
+const query = async (text, params) => {
+    try {
+        return await pool.query(text, params);
+    } catch (err) {
+        console.error('❌ SQL Error:', {
+            text,
+            params,
+            error: err.message
+        });
+        throw err;
+    }
+};
 
 // Verificar conexión al inicio
 pool.connect()
@@ -28,7 +39,8 @@ pool.connect()
         client.release();
     })
     .catch(err => {
-        console.error('❌ Error conectando a PostgreSQL:', err);
+        console.error('❌ Error fatal conectando a PostgreSQL:', err.message);
+        console.error('DATABASE_URL presente:', !!process.env.DATABASE_URL);
     });
 
 module.exports = {
