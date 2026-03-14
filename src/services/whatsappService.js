@@ -12,6 +12,10 @@ const chatStates = new Map();
 
 const client = new Client({
     authStrategy: new LocalAuth(),
+    webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1018903333-alpha.html',
+    },
     puppeteer: {
         headless: true,
         args: [
@@ -21,7 +25,8 @@ const client = new Client({
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--disable-gpu'
+            '--disable-gpu',
+            '--disable-extensions'
         ]
     }
 });
@@ -52,12 +57,23 @@ client.on('disconnected', () => {
 // Función para obtener estado desde afuera
 const getStatus = () => ({ status: botStatus, qr: lastQR });
 
-client.on('message', async (msg) => {
+// Función centralizada para manejar mensajes
+async function handleMessage(msg) {
     const from = msg.from;
     const text = msg.body.trim().toLowerCase();
     
-    // Solo responder a chats individuales (ignorar grupos y ESTADOS)
-    if (from.includes('@g.us') || from === 'status@broadcast') return;
+    // Ignorar mensajes de grupos o estados
+    if (from.includes('@g.us') || from === 'status@broadcast') {
+        return;
+    }
+
+    // Si el usuario escribe "reset" o "reiniciar", borramos su estado
+    if (text === 'reset' || text === 'reiniciar' || text === 'inicio') {
+        chatStates.delete(from);
+        return await client.sendMessage(from, '¡Entendido! Vamos a empezar de nuevo. ¿Cómo te llamas?');
+    }
+
+    console.log(`🤖 Procesando mensaje de ${from}: ${text}`);
 
     let state = chatStates.get(from) || { step: 0 };
 
@@ -71,18 +87,18 @@ client.on('message', async (msg) => {
                     chatStates.set(from, state);
                     return await client.sendMessage(from, '¡Hola! 👋 Pura vida. Bienvenido a la Barbería.\n\n¿Cuál es tu nombre para poder agendarte?');
                 } else {
-                    state.nombre = msg.body.trim(); // Capturamos el nombre tal cual lo escribió
+                    state.nombre = msg.body.trim(); 
                     state.step = 1;
                     state.esperandoNombre = false;
                     chatStates.set(from, state);
-                    return await sendServicesList(msg, true, state.nombre);
+                    return await sendServicesList(from, true, state.nombre);
                 }
             } else {
                 state.nombre = usuario.nombre;
                 state.usuarioId = usuario.id;
                 state.step = 1;
                 chatStates.set(from, state);
-                return await sendServicesList(msg, false, state.nombre);
+                return await sendServicesList(from, false, state.nombre);
             }
         }
 
@@ -95,7 +111,7 @@ client.on('message', async (msg) => {
                 state.servicio = servicios[index];
                 state.step = 2;
                 chatStates.set(from, state);
-                return await client.sendMessage(from, `Excelente, elegiste: *${state.servicio.nombre}*.\n\n¿Para qué día te gustaría la cita? 📅\n(Podés decirme "hoy", "mañana", "lunes", o una fecha específica)`);
+                return await client.sendMessage(from, `Excelente, elegiste: *${state.servicio.nombre}*.\n\n¿Para qué día te gustaría la cita? 📅\n(Podés decirme "hoy", "mañana", "lunes", o una fecha específica DD/MM)`);
             } else {
                 return await client.sendMessage(from, 'Porfa, elegí un número de la lista.');
             }
@@ -105,12 +121,11 @@ client.on('message', async (msg) => {
         if (state.step === 2) {
             const fecha = parseIntelligentDate(text);
             if (!fecha) {
-                return await client.sendMessage(from, 'Mmm no te entendí bien la fecha. 😕\nEscribí algo como "hoy", "mañana", o el nombre del día.');
+                return await client.sendMessage(from, 'Mmm no te entendí bien la fecha. 😕\nEscribí algo como "hoy", "mañana", o el nombre del día (ej: viernes).');
             }
 
             state.fecha = fecha;
             
-            // Verificar si el día está cerrado antes de ver slots
             const dateObj = new Date(fecha);
             const diaSemana = dateObj.getUTCDay();
             const horario = await CitaModel.getHorariosNegocio(diaSemana);
@@ -141,7 +156,6 @@ client.on('message', async (msg) => {
             if (index >= 0 && index < state.slots.length) {
                 state.hora = state.slots[index];
                 
-                // Confirmación final
                 const resumen = `*RESUMEN DE TU CITA:* 💈\n\n` +
                                 `👤 Nombre: ${state.nombre}\n` +
                                 `✂️ Servicio: ${state.servicio.nombre}\n` +
@@ -160,17 +174,14 @@ client.on('message', async (msg) => {
         // --- 4. CONFIRMACIÓN FINAL ---
         if (state.step === 4) {
             if (text.includes('si')) {
-                // Si el usuario no existía, lo creamos ahora
                 if (!state.usuarioId) {
                     state.usuarioId = await UsuarioModel.create(state.nombre, from.replace('@c.us', ''));
                 }
 
-                // Calcular hora fin
                 const startDateTime = new Date(`${state.fecha}T${state.hora}`);
                 const endDateTime = new Date(startDateTime.getTime() + state.servicio.duracion * 60000);
                 const horaFin = endDateTime.toTimeString().substring(0, 5);
 
-                console.log(`Guardando cita para ${state.nombre} el ${state.fecha} a las ${state.hora}`);
                 await CitaModel.create(
                     state.usuarioId,
                     state.fecha,
@@ -179,9 +190,8 @@ client.on('message', async (msg) => {
                     state.servicio.precio,
                     [state.servicio.id]
                 );
-                console.log('Cita guardada con éxito');
 
-                chatStates.delete(from); // Limpiar estado
+                chatStates.delete(from);
                 return await client.sendMessage(from, '¡LISTO! Tu cita quedó agendada con éxito. ✅ Te esperamos. ¡Pura vida!');
             } else {
                 chatStates.delete(from);
@@ -190,12 +200,25 @@ client.on('message', async (msg) => {
         }
 
     } catch (error) {
-        console.error('Error en Bot WhatsApp:', error);
+        console.error('❌ Error en Bot WhatsApp:', error);
         await client.sendMessage(from, 'Ocurrió un errorcito en el bot. 🙃 Probá más tarde porfa.');
+    }
+}
+
+client.on('message', async (msg) => {
+    console.log(`📩 Mensaje recibido de ${msg.from}: ${msg.body}`);
+    await handleMessage(msg);
+});
+
+client.on('message_create', async (msg) => {
+    // Si el mensaje fue enviado por mí pero para mí mismo (ej: mensaje a mi propio número)
+    if (msg.fromMe && msg.to === msg.from) {
+        console.log(`Self-message detectado de ${msg.from}`);
+        await handleMessage(msg);
     }
 });
 
-async function sendServicesList(msg, esNuevo = false, nombre = '') {
+async function sendServicesList(to, esNuevo = false, nombre = '') {
     const servicios = await ServicioModel.getAll();
     let saludo = esNuevo ? `¡Mucho gusto, *${nombre}*! ✨` : `¡Qué bueno saludarte de nuevo, *${nombre}*! ✨`;
     let response = `${saludo}\n\n¿Qué te gustaría hacerte hoy?\n\n`;
@@ -203,7 +226,7 @@ async function sendServicesList(msg, esNuevo = false, nombre = '') {
         response += `*${i + 1}.* ${s.nombre} (₡${s.precio})\n`;
     });
     response += `\n*Respondé con el número del servicio.*`;
-    await client.sendMessage(msg.from, response);
+    await client.sendMessage(to, response);
 }
 
 // Lógica de "fechas inteligentes"
