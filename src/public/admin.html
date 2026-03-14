@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control | BarberPro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark-mode">
+    <div class="admin-container">
+        <aside class="sidebar">
+            <h1 class="logo">BARBER<span>ADMIN</span></h1>
+            <nav>
+                <a href="#" onclick="showSection('agenda')" id="nav-agenda" class="active">📅 Agenda Hoy</a>
+                <a href="#" onclick="showSection('servicios')" id="nav-servicios">✂️ Servicios</a>
+                <a href="#" onclick="showSection('bloqueos')" id="nav-bloqueos">🚫 Bloqueos</a>
+                <a href="#" onclick="showSection('config')" id="nav-config">⚙️ Configuración</a>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <!-- SECCIÓN: AGENDA -->
+            <section id="section-agenda" class="admin-section active">
+                <header class="content-header">
+                    <h2>Agenda</h2>
+                    <div class="header-controls">
+                        <input type="date" id="admin-date-selector" onchange="loadDashboard(this.value)">
+                        <div id="current-date" class="date-badge">Cargando...</div>
+                    </div>
+                </header>
+
+                <div id="citas-container" class="citas-list">
+                    <!-- Citas se cargarán aquí -->
+                </div>
+            </section>
+
+            <!-- SECCIÓN: SERVICIOS -->
+            <section id="section-servicios" class="admin-section">
+                <header class="content-header">
+                    <h2>Gestionar Servicios</h2>
+                    <button class="btn-primary-small" onclick="formNuevoServicio()">+ Nuevo</button>
+                </header>
+                <div id="servicios-admin-list" class="admin-grid">
+                    <!-- Servicios se cargarán aquí -->
+                </div>
+            </section>
+
+            <!-- SECCIÓN: BLOQUEOS -->
+            <section id="section-bloqueos" class="admin-section">
+                <header class="content-header">
+                    <h2>Bloqueos Puntuales</h2>
+                    <button class="btn-primary-small" onclick="abrirFormBloqueo()">+ Bloquear</button>
+                </header>
+                <div id="bloqueos-admin-list" class="citas-list">
+                    <!-- Bloqueos se cargarán aquí -->
+                </div>
+            </section>
+
+            <!-- SECCIÓN: CONFIGURACIÓN -->
+            <section id="section-config" class="admin-section">
+                <header class="content-header">
+                    <h2>Horarios de Atención</h2>
+                </header>
+                <div id="horarios-admin-list" class="horarios-grid-admin">
+                    <!-- Horarios se cargarán aquí -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Navegación Inferior Móvil -->
+        <nav class="mobile-nav">
+            <a href="#" onclick="showSection('agenda')" id="m-nav-agenda" class="active">
+                <span>📅</span> Agenda
+            </a>
+            <a href="#" onclick="showSection('servicios')" id="m-nav-servicios">
+                <span>✂️</span> Servicios
+            </a>
+            <a href="#" onclick="showSection('bloqueos')" id="m-nav-bloqueos">
+                <span>🚫</span> Bloqueos
+            </a>
+            <a href="#" onclick="showSection('config')" id="m-nav-config">
+                <span>⚙️</span> Config.
+            </a>
+        </nav>
+    </div>
+
+    <!-- Modal para detalles de cita -->
+    <div id="modal" class="modal hidden" style="display: none;">
+        <div class="modal-content card">
+            <h2>Detalles de la Cita</h2>
+            <div id="modal-body"></div>
+            <div class="modal-actions">
+                <button onclick="actualizarEstado('completada')" class="btn-success">Finalizar</button>
+                <button onclick="actualizarEstado('no_show')" class="btn-danger">No Show</button>
+                <button onclick="cerrarModal()" class="btn-secondary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
